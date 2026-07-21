@@ -1,0 +1,71 @@
+# Panopticon Configuration
+# Path: ~/.config/panopticon/panopticon.yaml
+
+# Listen address (default: ":8080")
+listen: ":8080"
+
+# Data directory for CA certs and SQLite database (default: ~/.local/share/panopticon)
+data_dir: "~/.local/share/panopticon"
+
+# Verbose logging (default: false)
+verbose: false
+
+# Traffic control rules
+# Rules are evaluated in priority order (lowest number = highest priority)
+rules:
+  # Example: Deny telemetry endpoints
+  - name: "block-example-telemetry"
+    priority: 10
+    conditions:
+      - type: host
+        value: "*.example.com"
+      - type: path
+        value: "/telemetry/*"
+    action:
+      action: deny
+      config:
+        response_code: 403
+        response_body: "Blocked by Panopticon"
+
+  # Example: Mask API keys in requests to AI providers
+  - name: "mask-ai-api-keys"
+    priority: 50
+    conditions:
+      - type: host
+        value: "api.anthropic.com"
+      - type: method
+        value: "POST"
+    action:
+      action: mask
+      config:
+        headers:
+          - "x-api-key"
+          - "anthropic-version"
+
+  # Example: Allow all traffic from Claude Code
+  - name: "allow-claude-code"
+    priority: 200
+    conditions:
+      - type: process
+        bundle_id: "Q6L2SF6YDW.com.anthropic.claude-code"
+    action:
+      action: allow
+
+  # Example: Log all LLM API traffic
+  - name: "capture-all-llm"
+    priority: 500
+    conditions:
+      - type: host
+        value: "*.anthropic.com"
+    action:
+      action: log
+      config:
+        capture_body: true
+
+  # Default deny (lowest priority - catch all)
+  - name: "default-policy"
+    priority: 9999
+    conditions:
+      - type: any
+    action:
+      action: allow  # Set to "deny" for whitelist-only mode
