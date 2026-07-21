@@ -93,10 +93,15 @@ func DefaultConfigDir() string {
 }
 
 // ResolveDataDir expands ~ in the data directory path.
+// If DataDir is empty, it returns the default data directory.
 func (c *Config) ResolveDataDir() string {
-	if len(c.DataDir) > 0 && c.DataDir[0] == '~' {
-		home, _ := os.UserHomeDir()
-		return filepath.Join(home, c.DataDir[1:])
+	dd := c.DataDir
+	if dd == "" {
+		dd = defaultDataDir
 	}
-	return c.DataDir
+	if len(dd) > 0 && dd[0] == '~' {
+		home, _ := os.UserHomeDir()
+		return filepath.Join(home, dd[1:])
+	}
+	return dd
 }

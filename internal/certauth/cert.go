@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"math/big"
 	"net"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -80,10 +79,4 @@ func hostPortToHostname(hostport string) string {
 		return strings.Trim(hostport, "[]")
 	}
 	return host
-}
-
-// isPort checks if the given string could be a valid port number.
-func isPort(s string) bool {
-	p, err := strconv.Atoi(s)
-	return err == nil && p > 0 && p < 65536
 }
